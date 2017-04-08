@@ -17,7 +17,7 @@
 
     var markers = [];
 
-    function buildMarker(latitude, longitude, post) {
+    window.buildMarker = function(latitude, longitude, post) {
         var marker = new google.maps.Marker({
             position: {lat: latitude, lng: longitude},
             title: post,
