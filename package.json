@@ -1,12 +1,12 @@
 {
   "name": "Nuvi-SocialThreat-Frontend",
   "version": "1.0.0",
-  "description": "This is a basic angular starter app that you can clone when you want to create a new angular application.",
+  "description": "Front end for the Social Threat application.",
   "main": "index.js",
   "scripts": {
     "test": "test"
   },
-  "author": "Benjamin Carlisle",
+  "author": "Nuvi Social Threat Team",
   "license": "ISC",
   "dependencies": {
     "angular": "~1.5.8",
