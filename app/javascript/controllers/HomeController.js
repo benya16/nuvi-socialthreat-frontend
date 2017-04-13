@@ -1,6 +1,25 @@
-(angular.module('myApp').controller('HomeController', function() {
+angular.module('myApp').controller('HomeController', ['socket', function(socket) {
 
     var map;
+
+    socket.on('init', function (data) {
+        console.log("Init: ", data);
+    });
+    
+    socket.on('connect', function () {
+        console.log("Connected");
+    });
+
+    socket.on('foo~bar', function () {
+        console.log("Here");
+    });
+
+    socket.on('connection', function (client) {
+        console.log("Client connected: ", client);
+        client.on('event', function (data) {
+            console.log("Data: ", data);
+        });
+    });
 
     window.initMap = function() {
         var uluru = {lat: -25.363, lng: 131.044};
@@ -41,4 +60,4 @@
         markers.push(marker);
     }
 
-}));
+}]);
