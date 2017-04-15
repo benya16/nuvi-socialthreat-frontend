@@ -3,7 +3,7 @@ angular.module('myApp').controller('HomeController', [function() {
     var map;
 
     var rtn = this;
-    $.get('http://localhost:80/nuvi-socialthreat-frontend/data/manualthreats.csv', function (data) {
+    $.get('http://rawr-online.bounceme.net/nuvi-socialthreat-frontend/data/manualthreats.csv', function (data) {
         rtn.data = $.csv.toObjects(data);
     });
 
