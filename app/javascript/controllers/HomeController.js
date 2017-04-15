@@ -1,36 +1,17 @@
-angular.module('myApp').controller('HomeController', ['socket', function(socket) {
+angular.module('myApp').controller('HomeController', [function() {
 
     var map;
 
-    socket.on('init', function (data) {
-        console.log("Init: ", data);
-    });
-    
-    socket.on('connect', function () {
-        console.log("Connected");
-    });
-
-    socket.on('foo~bar', function () {
-        console.log("Here");
-    });
-
-    socket.on('connection', function (client) {
-        console.log("Client connected: ", client);
-        client.on('event', function (data) {
-            console.log("Data: ", data);
-        });
+    var rtn = this;
+    $.get('http://localhost:63342/nuvi-socialthreat-frontend/data/manualthreats.csv', function (data) {
+        rtn.data = $.csv.toObjects(data);
     });
 
     window.initMap = function() {
-        var uluru = {lat: -25.363, lng: 131.044};
+        var uluru = {lat: 28.0339, lng: 1.6596};
         map = new google.maps.Map(document.getElementById('map'), {
-            zoom: 4,
+            zoom: 2,
             center: uluru
-        });
-        var marker = new google.maps.Marker({
-            position: uluru,
-            title: 'Whatever you want',
-            map: map
         });
     }
 
@@ -53,11 +34,34 @@ angular.module('myApp').controller('HomeController', ['socket', function(socket)
         });
 
 
-        if(markers.length >= 500) {
+        if(markers.length >= 20) {
             var mark = markers.shift();
             mark.setMap(null);
         }
         markers.push(marker);
     }
+    
+    window.randomizeMarkers = function () {
+        for (i = 0; i < rtn.data.length; i++) {
+            (function(i) {
+                setTimeout(function () {
+                    console.log('Json: ', rtn.data[i].json);
+                    var json = JSON.parse(rtn.data[i].json);
+                    console.log('Latitude: ', json.latitude);
+                    console.log('Longitude: ', json.longitude);
+                    console.log('City: ', json.location_display_name);
+
+                    buildMarker(json.latitude, json.longitude, json.raw_body_text);
+
+                }, Math.floor(Math.random() * 1000000));
+            })(i);
+        }
+    }
+
+    $(document).ready(function () {
+        $(document).ready(function () {
+            randomizeMarkers();
+        });
+    });
 
 }]);
