@@ -53,7 +53,7 @@ angular.module('myApp').controller('HomeController', [function() {
 
                     buildMarker(json.latitude, json.longitude, json.raw_body_text);
 
-                }, Math.floor(Math.random() * 1000000));
+                }, Math.floor(Math.random() * 1000000000));
             })(i);
         }
     }
