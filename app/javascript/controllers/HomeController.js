@@ -2,6 +2,9 @@ angular.module('myApp').controller('HomeController', ['socket', function(socket)
 {
     var map;
     var rtn = this;
+    var markers = [];
+    var demoJson = [];
+    var liveJson = [];
 
     socket.on('init', function ()
     {
@@ -14,8 +17,22 @@ angular.module('myApp').controller('HomeController', ['socket', function(socket)
         console.log("hand shake completed");
     });
 
+    socket.on('newThreat', function(json)
+    {
+        buildMarker(json.latitude, json.longitude, json.raw_body_text);
+    });
+
     window.getData = function ()
     {
+        $.get("/livedata", function(data)
+        {
+            data.forEach(function (object)
+            {
+                var raw = bin2String(object.post.data);
+                var json = JSON.parse(raw);
+                liveJson.push(json);
+            });
+        });
         $.get('/data/manualthreats.csv', function (data)
         {
             rtn.data = $.csv.toObjects(data);
@@ -31,10 +48,6 @@ angular.module('myApp').controller('HomeController', ['socket', function(socket)
         });
         getData()
     };
-
-    var markers = [];
-    var demoJson = [];
-    var liveJson = [];
 
     window.buildMarker = function(latitude, longitude, post) {
         var marker = new google.maps.Marker({
@@ -62,8 +75,21 @@ angular.module('myApp').controller('HomeController', ['socket', function(socket)
 
     window.setDemo = function()
     {
+        $("#live").removeClass("active");
+        $("#demo").addClass("active");
         clearMarkers();
         demoJson.forEach(function (json)
+        {
+            buildMarker(json.latitude, json.longitude, json.raw_body_text);
+        });
+    };
+
+    window.setLive = function()
+    {
+        $("#demo").removeClass("active");
+        $("#live").addClass("active");
+        clearMarkers();
+        liveJson.forEach(function (json)
         {
             buildMarker(json.latitude, json.longitude, json.raw_body_text);
         });
@@ -101,5 +127,12 @@ angular.module('myApp').controller('HomeController', ['socket', function(socket)
     //         randomizeMarkers();
     //     });
     // });
-
 }]);
+
+function bin2String(array) {
+    var result = "";
+    for (var i = 0; i < array.length; i++) {
+        result += String.fromCharCode(parseInt(array[i], 10));
+    }
+    return result;
+}

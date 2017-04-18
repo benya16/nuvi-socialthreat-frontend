@@ -5,11 +5,30 @@ var express = require('express');
 var app = express();
 var path = require('path');
 var http = require('http');
+var pgp = require('pg-promise')();
+
+var connection = {
+    host: 'localhost',
+    port: 5432,
+    database: 'manualthreats',
+    user: 'go',
+    password: 'gogo2017'
+};
+
+var db = pgp(connection);
 
 app.use(express.static(path.join(__dirname, 'app')));
 
-app.get('*', function (req, res) {
+app.get('/', function (req, res) {
     res.sendFile(path.join(__dirname, 'app/index.html'));
+});
+
+app.get('/livedata', function (req, res)
+{
+    db.query("select * from post order by collected desc limit 20").then(function(result)
+    {
+        res.json(result);
+    });
 });
 
 var server = http.createServer(app);

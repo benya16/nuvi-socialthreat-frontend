@@ -26,12 +26,12 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="#/">Social Threat</a>
+            <a class="navbar-brand" href="">Social Threat</a>
         </div>
         <div id="navbar" class="collapse navbar-collapse">
             <ul class="nav navbar-nav">
-                <li ng-class="{ active: isActive('/') || isActive('/home') }"><a href="#/">Home</a></li>
-                <li><a href="">Live</a></li>
+                <li id="demo" class="active"><a href="" onclick="setDemo()">Demo</a></li>
+                <li id="live"><a href="" onclick="setLive()">Live</a></li>
             </ul>
         </div><!--/.nav-collapse -->
     </div>
