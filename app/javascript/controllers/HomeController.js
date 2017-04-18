@@ -1,11 +1,17 @@
-angular.module('myApp').controller('HomeController', [function() {
+angular.module('myApp').controller('HomeController', [function()
+{
 
     var map;
 
     var rtn = this;
-    $.get('http://rawr-online.bounceme.net/nuvi-socialthreat-frontend/data/manualthreats.csv', function (data) {
-        rtn.data = $.csv.toObjects(data);
-    });
+    window.getData = function ()
+    {
+        $.get('/data/manualthreats.csv', function (data)
+        {
+            rtn.data = $.csv.toObjects(data);
+            randomizeMarkers()
+        });
+    };
 
     window.initMap = function() {
         var uluru = {lat: 28.0339, lng: 1.6596};
@@ -13,7 +19,8 @@ angular.module('myApp').controller('HomeController', [function() {
             zoom: 2,
             center: uluru
         });
-    }
+        getData()
+    };
 
     var markers = [];
 
@@ -39,7 +46,7 @@ angular.module('myApp').controller('HomeController', [function() {
             mark.setMap(null);
         }
         markers.push(marker);
-    }
+    };
     
     window.randomizeMarkers = function () {
         for (i = 0; i < rtn.data.length; i++) {
@@ -56,12 +63,12 @@ angular.module('myApp').controller('HomeController', [function() {
                 }, Math.floor(Math.random() * 10000000));
             })(i);
         }
-    }
+    };
 
-    $(document).ready(function () {
-        $(document).ready(function () {
-            randomizeMarkers();
-        });
-    });
+    // $(document).ready(function () {
+    //     $(document).ready(function () {
+    //         randomizeMarkers();
+    //     });
+    // });
 
 }]);
