@@ -8,10 +8,5 @@ angular.module('myApp').config(function($routeProvider) {
            controller: 'HomeController',
            controllerAs: 'homeCtrl'
        })
-       .when('/live', {
-           templateUrl: 'views/live.html',
-           controller: 'LiveController',
-           controllerAs: 'liveCtrl'
-       })
        .otherwise({redirectTo: '/home'});
 });

@@ -1,9 +1,19 @@
-angular.module('myApp').controller('HomeController', [function()
+angular.module('myApp').controller('HomeController', ['socket', function(socket)
 {
-
     var map;
-
     var rtn = this;
+
+    socket.on('init', function ()
+    {
+        console.log("socket connected");
+        socket.emit('join');
+    });
+
+    socket.on('handshake', function()
+    {
+        console.log("hand shake completed");
+    });
+
     window.getData = function ()
     {
         $.get('/data/manualthreats.csv', function (data)
@@ -23,6 +33,8 @@ angular.module('myApp').controller('HomeController', [function()
     };
 
     var markers = [];
+    var demoJson = [];
+    var liveJson = [];
 
     window.buildMarker = function(latitude, longitude, post) {
         var marker = new google.maps.Marker({
@@ -47,6 +59,24 @@ angular.module('myApp').controller('HomeController', [function()
         }
         markers.push(marker);
     };
+
+    window.setDemo = function()
+    {
+        clearMarkers();
+        demoJson.forEach(function (json)
+        {
+            buildMarker(json.latitude, json.longitude, json.raw_body_text);
+        });
+    };
+
+    window.clearMarkers = function()
+    {
+        markers.forEach(function (mark)
+        {
+            mark.setMap(null);
+        });
+        markers.length = 0;
+    };
     
     window.randomizeMarkers = function () {
         for (i = 0; i < rtn.data.length; i++) {
@@ -58,6 +88,7 @@ angular.module('myApp').controller('HomeController', [function()
                     console.log('Longitude: ', json.longitude);
                     console.log('City: ', json.location_display_name);
 
+                    demoJson.push(json);
                     buildMarker(json.latitude, json.longitude, json.raw_body_text);
 
                 }, Math.floor(Math.random() * 10000000));
