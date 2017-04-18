@@ -16,6 +16,11 @@ var connection = {
 };
 
 var db = pgp(connection);
+var server = http.createServer(app);
+
+var io = require('socket.io').listen(server);
+var socket = require('./socket.js');
+io.sockets.on('connection', socket);
 
 app.use(express.static(path.join(__dirname, 'app')));
 
@@ -31,14 +36,20 @@ app.get('/livedata', function (req, res)
     });
 });
 
-var server = http.createServer(app);
+app.get('/liveupdate', function(req, res)
+{
+    db.query("select * from post order by collected desc limit 1").then(function(result)
+    {
+        res.json(result);
+    });
+});
 
-var io = require('socket.io').listen(server);
-var socket = require('./socket.js');
-io.sockets.on('connection', socket);
-
-// app.listen(3000, function () {
-// });
+app.post('/liveupdate', function(req, res)
+{
+    console.log("POST: live update");
+    io.sockets.emit('liveupdate');
+    res.send("OK");
+});
 
 server.listen(3000, function() {
     console.log('Social Threat listening on port 3000!');

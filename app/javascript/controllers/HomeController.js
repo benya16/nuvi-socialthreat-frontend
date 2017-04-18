@@ -5,6 +5,7 @@ angular.module('myApp').controller('HomeController', ['socket', function(socket)
     var markers = [];
     var demoJson = [];
     var liveJson = [];
+    var live = false;
 
     socket.on('init', function ()
     {
@@ -17,13 +18,38 @@ angular.module('myApp').controller('HomeController', ['socket', function(socket)
         console.log("hand shake completed");
     });
 
-    socket.on('newThreat', function(json)
+    socket.on('liveupdate', function()
     {
-        buildMarker(json.latitude, json.longitude, json.raw_body_text);
+        console.log("LIVE UPDATE");
+        $.get("/liveupdate", function(data)
+        {
+            data.forEach(function (object)
+            {
+                var raw = bin2String(object.post.data);
+                var json = JSON.parse(raw);
+                liveJson.push(json);
+                if (liveJson.length > 20)
+                {
+                    liveJson.shift();
+                }
+                buildMarker(json.latitude, json.longitude, json.raw_body_text, json.activity_url);
+            });
+        });
     });
 
     window.getData = function ()
     {
+        getLiveData();
+        $.get('/data/manualthreats.csv', function (data)
+        {
+            rtn.data = $.csv.toObjects(data);
+            randomizeMarkers()
+        });
+    };
+
+    window.getLiveData = function()
+    {
+        liveJson.length = 0;
         $.get("/livedata", function(data)
         {
             data.forEach(function (object)
@@ -32,11 +58,6 @@ angular.module('myApp').controller('HomeController', ['socket', function(socket)
                 var json = JSON.parse(raw);
                 liveJson.push(json);
             });
-        });
-        $.get('/data/manualthreats.csv', function (data)
-        {
-            rtn.data = $.csv.toObjects(data);
-            randomizeMarkers()
         });
     };
 
@@ -49,7 +70,7 @@ angular.module('myApp').controller('HomeController', ['socket', function(socket)
         getData()
     };
 
-    window.buildMarker = function(latitude, longitude, post) {
+    window.buildMarker = function(latitude, longitude, post, url) {
         var marker = new google.maps.Marker({
             position: {lat: latitude, lng: longitude},
             title: post,
@@ -59,7 +80,7 @@ angular.module('myApp').controller('HomeController', ['socket', function(socket)
 
 
         var infowindow = new google.maps.InfoWindow({
-          content: post
+          content: post + "\n" + "<a href='"+ url + "' target='_blank'>" + url + "</a>"
         });
         marker.addListener('click', function() {
           infowindow.open(map, marker);
@@ -75,23 +96,25 @@ angular.module('myApp').controller('HomeController', ['socket', function(socket)
 
     window.setDemo = function()
     {
+        live = false;
         $("#live").removeClass("active");
         $("#demo").addClass("active");
         clearMarkers();
         demoJson.forEach(function (json)
         {
-            buildMarker(json.latitude, json.longitude, json.raw_body_text);
+            buildMarker(json.latitude, json.longitude, json.raw_body_text, json.activity_url);
         });
     };
 
     window.setLive = function()
     {
+        live = true;
         $("#demo").removeClass("active");
         $("#live").addClass("active");
         clearMarkers();
         liveJson.forEach(function (json)
         {
-            buildMarker(json.latitude, json.longitude, json.raw_body_text);
+            buildMarker(json.latitude, json.longitude, json.raw_body_text, json.activity_url);
         });
     };
 
@@ -115,7 +138,14 @@ angular.module('myApp').controller('HomeController', ['socket', function(socket)
                     console.log('City: ', json.location_display_name);
 
                     demoJson.push(json);
-                    buildMarker(json.latitude, json.longitude, json.raw_body_text);
+                    if (demoJson.length > 20)
+                    {
+                        demoJson.shift();
+                    }
+                    if (!live)
+                    {
+                        buildMarker(json.latitude, json.longitude, json.raw_body_text, json.activity_url);
+                    }
 
                 }, Math.floor(Math.random() * 10000000));
             })(i);
