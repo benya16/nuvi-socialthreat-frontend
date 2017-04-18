@@ -10,7 +10,7 @@ var pgp = require('pg-promise')();
 var connection = {
     host: 'localhost',
     port: 5432,
-    database: 'manualthreats',
+    database: 'nuvisocialthreat',
     user: 'go',
     password: 'gogo2017'
 };
